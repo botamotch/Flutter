@@ -11,112 +11,107 @@ class GameAreaWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(child: PanelContainerWidget()),
-          Expanded(child: MenuWidget()),
-          // PanelContainerWidget(),
-          // MenuWidget(),
+          // Expanded(child: MenuWidget()),
         ],
       ),
     );
   }
 }
 
-class MenuWidget extends StatefulWidget {
-  const MenuWidget({Key? key}) : super(key: key);
-  @override
-  State<MenuWidget> createState() => _MenuWidgetState();
-}
-
-class _MenuWidgetState extends State<MenuWidget> {
-  @override
-  Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    List<Positioned> _positionList = [
-      for (int i = 0; i < 9; i += 1)
-        Positioned(
-            top: 10,
-            left: width / 9 * (i as double),
-            width: width / 9,
-            height: width / 9,
-            child: GestureDetector(
-              onTap: () {},
-              child: Container(
-                alignment: Alignment(0.0, 0.0),
-                // color: Colors.blueGrey,
-                child: Text('$i'),
-              ),
-            ))
-    ];
-    return Stack(
-      fit: StackFit.expand,
-      children: _positionList,
-    );
-    // return Container(child: Text('hello'));
-  }
-}
-
 class PanelContainerWidget extends StatefulWidget {
   const PanelContainerWidget({Key? key}) : super(key: key);
-
-  static List<int> correctNumber = [
-    for (int i = 0; i < 81; i += 1) Random().nextInt(9) + 1
-  ];
-  static List<int> inputNumber = [];
-  static List<bool> visible = [];
-
   @override
   State<PanelContainerWidget> createState() => _PanelContainerWidgetState();
 }
 
 class _PanelContainerWidgetState extends State<PanelContainerWidget> {
-  List<PanelContentWidget> panelList = [for (var i = 0; i < 81; i += 1) i]
-      .map((int i) => PanelContentWidget(
-            color: Colors.white70,
-            number: PanelContainerWidget.correctNumber[i],
-          ))
-      .toList();
+  int selectedPanel = 0;
+  List<int> inputNumber = [];
+  List<bool> selectable = [];
+  List<int> correctNumber = [];
+  List<PanelContentWidget> panelList = [];
 
-  void _initNumber() {
+  void setNumber(var j) {
     setState(() {
-      panelList = [for (int i = 0; i < 81; i += 1) i]
-          .map((int i) => PanelContentWidget(
-                color: Colors.white70,
-                number: PanelContainerWidget.correctNumber[i],
-              ))
-          .toList();
+      inputNumber[selectedPanel] = j;
     });
   }
 
-  void _resetColor(int index) {
+  void checkAnswer() {}
+  void selectPanel(var i) {
     setState(() {
-      panelList = [for (int i = 0; i < 81; i += 1) i]
-          .map((int i) => PanelContentWidget(
-                color: (i != index) ? Colors.white70 : Colors.black12,
-                number: PanelContainerWidget.correctNumber[i],
-              ))
-          .toList();
+      selectedPanel = i;
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    for (var i = 0; i < 81; i += 1) {
+      correctNumber.add(Random().nextInt(9) + 1);
+      selectable.add(i > 40 ? true : false);
+      inputNumber.add(0);
+      panelList.add(PanelContentWidget(
+        color: selectable[i] ? Colors.white70 : Colors.black12,
+        number: selectable[i] ? inputNumber[i] : correctNumber[i],
+      ));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
+    var width = MediaQuery.of(context).size.width;
     // double height = MediaQuery.of(context).size.height;
     List<Positioned> _positionList = [];
-    panelList.asMap().forEach((int i, PanelContentWidget p) {
+    // Panel
+    for (var i = 0; i < 81; i += 1) {
+      panelList[i] = PanelContentWidget(
+        color: (i == selectedPanel) ? Colors.black12 : Colors.white70,
+        number: selectable[i] ? inputNumber[i] : correctNumber[i],
+      );
       _positionList.add(Positioned(
-        top: width / 9 * ((i ~/ 9) as double),
-        left: width / 9 * ((i % 9) as double),
+        top: width / 9 * (i ~/ 9),
+        left: width / 9 * (i % 9),
         width: width / 9,
         height: width / 9,
         child: GestureDetector(
           onTap: () {
-            _resetColor(i);
+            selectPanel(i);
           },
-          child: p,
+          child: panelList[i],
         ),
       ));
-    });
-    _initNumber();
+    }
+    // Button
+    for (var i = 0; i < 9; i += 1) {
+      _positionList.add(Positioned(
+        top: width,
+        left: width / 9 * (i % 9),
+        width: width / 9,
+        height: width / 9,
+        child: GestureDetector(
+          onTap: () {
+            setNumber(i + 1);
+          },
+          child: PanelContentWidget(
+            color: Colors.black12,
+            number: (i + 1),
+          ),
+        ),
+      ));
+    }
+    _positionList.add(Positioned(
+      top: width * (1 + 1 / 9),
+      left: 0,
+      width: width,
+      height: width / 10,
+      child: GestureDetector(
+        onTap: () {
+          setNumber(0);
+        },
+        child: PanelContentWidget(color: Colors.black12, number: 0),
+      ),
+    ));
 
     return Stack(
       fit: StackFit.expand,
@@ -138,7 +133,7 @@ class PanelContentWidget extends StatelessWidget {
     return Container(
       alignment: Alignment(0.0, 0.0),
       color: color,
-      child: Text('$number'),
+      child: Text(number != 0 ? '$number' : ''),
     );
   }
 }
