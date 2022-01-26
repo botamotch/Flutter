@@ -22,20 +22,25 @@ selectPanel, setNumberは済。
 
 ``` lib/panel.dart
 class GameAreaWidget extends StatelessWidget
-└─class PanelContainerWidget extends StatefulWidget
-  │ │─ int selectedPanel = 0;
-  │ │─ List<int> inputNumber = [];
-  │ │─ List<bool> selectable = [];
-  │ │─ List<int> correctNumber = [];
-  │ │─ List<PanelContentWidget> panelList = [];
-  │ │
-  │ │─ void setNumber(var j) { setState(() { ... }); }
-  │ │─ void checkAnswer() {setState(() { ... });}
-  │ │─ void selectPanel(var i) {setState(() { ... });}
-  │ │
-  │ │─ @override void initState() { ... }
-  │ └─ @override Widget build() { return ... }
-  │
-  └─class PanelContentWidget extends StatelessWidget
+
+class FrameWidget extends StatefulWidget
+ │─ int selectedPanel = 0;
+ │─ List<int> inputNumber = [];
+ │─ List<int> correctNumber = [];
+ │─ List<int> status = [];
+ │─ List<PanelWidget> panelList = [];
+ │
+ │─ void setNumber(var num) { setState(() { ... }); }
+ │─ void checkAnswer() {setState(() { ... });}
+ │─ void selectPanel(var j) {setState(() { ... });}
+ │
+ │─ @override void initState() { ... }
+ └─ @override Widget build() { return Stack(...) }
+
+class PanelWidget extends StatelessWidget
+ │─ final int inputNumber;
+ │─ final int correctNumber;
+ └─ final int status;
+
 ```
 

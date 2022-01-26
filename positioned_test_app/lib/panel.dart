@@ -10,7 +10,7 @@ class GameAreaWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(child: PanelContainerWidget()),
+          Expanded(child: FrameWidget()),
           // Expanded(child: MenuWidget()),
         ],
       ),
@@ -18,42 +18,54 @@ class GameAreaWidget extends StatelessWidget {
   }
 }
 
-class PanelContainerWidget extends StatefulWidget {
-  const PanelContainerWidget({Key? key}) : super(key: key);
+class FrameWidget extends StatefulWidget {
+  const FrameWidget({Key? key}) : super(key: key);
   @override
-  State<PanelContainerWidget> createState() => _PanelContainerWidgetState();
+  State<FrameWidget> createState() => _FrameWidgetState();
 }
 
-class _PanelContainerWidgetState extends State<PanelContainerWidget> {
-  int selectedPanel = 0;
+class _FrameWidgetState extends State<FrameWidget> {
+  // int selectedPanel = 0;
   List<int> inputNumber = [];
-  List<bool> selectable = [];
   List<int> correctNumber = [];
-  List<PanelContentWidget> panelList = [];
+  List<int> status = [];
+  List<PanelWidget> panelList = [];
 
-  void setNumber(var j) {
+  void setNumber(var num) {
+    // 選択中のパネルに数字を入れる
     setState(() {
-      inputNumber[selectedPanel] = j;
+      for (var i = 0; i < 81; i += 1) {
+        if ((status[i] % 2 == 1) & (status[i] ~/ 2 != 1)) {
+          inputNumber[i] = num;
+        }
+      }
+    });
+  }
+
+  void selectPanel(var j) {
+    // 選択中のパネルを設定する
+    // i == j : 選択中。 X | 1 で bit1 をHiにする
+    // i != j : 未選択。 X & 2 で bit1 をLoにする
+    setState(() {
+      for (var i = 0; i < 81; i += 1) {
+        status[i] = (i == j) ? status[i] | 1 : status[i] & 2;
+      }
     });
   }
 
   void checkAnswer() {}
-  void selectPanel(var i) {
-    setState(() {
-      selectedPanel = i;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
     for (var i = 0; i < 81; i += 1) {
       correctNumber.add(Random().nextInt(9) + 1);
-      selectable.add(i > 40 ? true : false);
+      status.add(i > 40 ? 2 : 0);
       inputNumber.add(0);
-      panelList.add(PanelContentWidget(
-        color: selectable[i] ? Colors.white70 : Colors.black12,
-        number: selectable[i] ? inputNumber[i] : correctNumber[i],
+      panelList.add(PanelWidget(
+        inputNumber: inputNumber[i],
+        correctNumber: correctNumber[i],
+        status: status[i],
       ));
     }
   }
@@ -65,9 +77,10 @@ class _PanelContainerWidgetState extends State<PanelContainerWidget> {
     List<Positioned> _positionList = [];
     // Panel
     for (var i = 0; i < 81; i += 1) {
-      panelList[i] = PanelContentWidget(
-        color: (i == selectedPanel) ? Colors.black12 : Colors.white70,
-        number: selectable[i] ? inputNumber[i] : correctNumber[i],
+      panelList[i] = PanelWidget(
+        inputNumber: inputNumber[i],
+        correctNumber: correctNumber[i],
+        status: status[i],
       );
       _positionList.add(Positioned(
         top: width / 9 * (i ~/ 9),
@@ -93,9 +106,10 @@ class _PanelContainerWidgetState extends State<PanelContainerWidget> {
           onTap: () {
             setNumber(i + 1);
           },
-          child: PanelContentWidget(
-            color: Colors.black12,
-            number: (i + 1),
+          child: PanelWidget(
+            correctNumber: 0,
+            inputNumber: (i + 1),
+            status: 3,
           ),
         ),
       ));
@@ -109,7 +123,11 @@ class _PanelContainerWidgetState extends State<PanelContainerWidget> {
         onTap: () {
           setNumber(0);
         },
-        child: PanelContentWidget(color: Colors.black12, number: 0),
+        child: PanelWidget(
+          correctNumber: 0,
+          inputNumber: 0,
+          status: 3,
+        ),
       ),
     ));
 
@@ -120,20 +138,48 @@ class _PanelContainerWidgetState extends State<PanelContainerWidget> {
   }
 }
 
-class PanelContentWidget extends StatelessWidget {
-  const PanelContentWidget(
-      {Key? key, required this.color, required this.number})
+class PanelWidget extends StatelessWidget {
+  const PanelWidget(
+      {Key? key,
+      required this.inputNumber,
+      required this.status,
+      required this.correctNumber})
       : super(key: key);
 
-  final int number;
-  final Color color;
+  final int inputNumber;
+  final int correctNumber;
+  final int status;
 
   @override
   Widget build(BuildContext context) {
+    Color color;
+    String number;
+    var style;
+    if (status == 0) {
+      // 入力可能、未選択
+      color = Colors.white70;
+      number = (inputNumber != 0) ? '$inputNumber' : '';
+      style = TextStyle(fontWeight: FontWeight.normal);
+    } else if (status == 1) {
+      // 入力可能、選択中
+      color = Colors.black12;
+      number = (inputNumber != 0) ? '$inputNumber' : '';
+      style = TextStyle(fontWeight: FontWeight.normal);
+    } else if (status == 2) {
+      // 入力不可
+      color = Colors.white12;
+      number = (correctNumber != 0) ? '$correctNumber' : '';
+      style = TextStyle(fontWeight: FontWeight.bold);
+    } else {
+      // Buttonパネル
+      color = Colors.black12;
+      number = (inputNumber != 0) ? '$inputNumber' : 'CLEAR';
+      style = TextStyle(fontWeight: FontWeight.bold);
+    }
     return Container(
       alignment: Alignment(0.0, 0.0),
       color: color,
-      child: Text(number != 0 ? '$number' : ''),
+      child: Text(number, style: style),
     );
   }
 }
