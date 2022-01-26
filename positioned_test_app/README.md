@@ -24,7 +24,7 @@ selectPanel, setNumberは済。
 class GameAreaWidget extends StatelessWidget
 
 class FrameWidget extends StatefulWidget
- │─ int selectedPanel = 0;
+ │
  │─ List<int> inputNumber = [];
  │─ List<int> correctNumber = [];
  │─ List<int> status = [];
@@ -33,8 +33,9 @@ class FrameWidget extends StatefulWidget
  │─ void setNumber(var num) { setState(() { ... }); }
  │─ void checkAnswer() {setState(() { ... });}
  │─ void selectPanel(var j) {setState(() { ... });}
+ │─ void resetGame() {setState(() { ... });}
  │
- │─ @override void initState() { ... }
+ │─ @override void initState() { resetGame() }
  └─ @override Widget build() { return Stack(...) }
 
 class PanelWidget extends StatelessWidget

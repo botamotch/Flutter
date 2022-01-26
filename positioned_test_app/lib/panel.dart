@@ -26,10 +26,11 @@ class FrameWidget extends StatefulWidget {
 
 class _FrameWidgetState extends State<FrameWidget> {
   // int selectedPanel = 0;
-  List<int> inputNumber = [];
-  List<int> correctNumber = [];
-  List<int> status = [];
-  List<PanelWidget> panelList = [];
+  List<int> inputNumber = List.generate(81, (_) => 0);
+  List<int> correctNumber = List.generate(81, (_) => 0);
+  List<int> status = List.generate(81, (_) => 0);
+  List<PanelWidget> panelList = List.generate(
+      81, (_) => PanelWidget(inputNumber: 0, status: 0, correctNumber: 0));
 
   void setNumber(var num) {
     // 選択中のパネルに数字を入れる
@@ -48,26 +49,46 @@ class _FrameWidgetState extends State<FrameWidget> {
     // i != j : 未選択。 X & 2 で bit1 をLoにする
     setState(() {
       for (var i = 0; i < 81; i += 1) {
-        status[i] = (i == j) ? status[i] | 1 : status[i] & 2;
+        status[i] = (i == j) ? (status[i] | 1) : (status[i] & 2);
       }
     });
   }
 
-  void checkAnswer() {}
+  void resetGame() {
+    setState(() {
+      for (var i = 0; i < 81; i += 1) {
+        correctNumber[i] = Random().nextInt(9) + 1;
+        inputNumber[i] = 0;
+        status[i] = i > 40 ? 2 : 0;
+        panelList[i] = PanelWidget(
+          inputNumber: inputNumber[i],
+          correctNumber: correctNumber[i],
+          status: status[i],
+        );
+      }
+    });
+  }
+
+  void checkAnswer() {
+    setState(() {
+      bool correctAnswer = false;
+      if (inputNumber.contains(0)) {
+        correctAnswer = false;
+      } else {
+        for (var i = 0; i < 9; i += 1) {
+          correctAnswer = correctAnswer;
+        }
+      }
+      if (correctAnswer) {
+        resetGame();
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    for (var i = 0; i < 81; i += 1) {
-      correctNumber.add(Random().nextInt(9) + 1);
-      status.add(i > 40 ? 2 : 0);
-      inputNumber.add(0);
-      panelList.add(PanelWidget(
-        inputNumber: inputNumber[i],
-        correctNumber: correctNumber[i],
-        status: status[i],
-      ));
-    }
+    resetGame();
   }
 
   @override
@@ -109,7 +130,7 @@ class _FrameWidgetState extends State<FrameWidget> {
           child: PanelWidget(
             correctNumber: 0,
             inputNumber: (i + 1),
-            status: 3,
+            status: 4,
           ),
         ),
       ));
@@ -126,7 +147,7 @@ class _FrameWidgetState extends State<FrameWidget> {
         child: PanelWidget(
           correctNumber: 0,
           inputNumber: 0,
-          status: 3,
+          status: 4,
         ),
       ),
     ));
@@ -165,7 +186,7 @@ class PanelWidget extends StatelessWidget {
       color = Colors.black12;
       number = (inputNumber != 0) ? '$inputNumber' : '';
       style = TextStyle(fontWeight: FontWeight.normal);
-    } else if (status == 2) {
+    } else if ((status & 2) == 2) {
       // 入力不可
       color = Colors.white12;
       number = (correctNumber != 0) ? '$correctNumber' : '';
@@ -175,6 +196,7 @@ class PanelWidget extends StatelessWidget {
       color = Colors.black12;
       number = (inputNumber != 0) ? '$inputNumber' : 'CLEAR';
       style = TextStyle(fontWeight: FontWeight.bold);
+      // print('> $inputNumber , $status');
     }
     return Container(
       alignment: Alignment(0.0, 0.0),
