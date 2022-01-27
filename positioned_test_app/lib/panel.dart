@@ -25,7 +25,6 @@ class FrameWidget extends StatefulWidget {
 }
 
 class _FrameWidgetState extends State<FrameWidget> {
-  // int selectedPanel = 0;
   List<int> inputNumber = List.generate(81, (_) => 0);
   List<int> correctNumber = List.generate(81, (_) => 0);
   List<int> status = List.generate(81, (_) => 0);
@@ -60,26 +59,63 @@ class _FrameWidgetState extends State<FrameWidget> {
         correctNumber[i] = Random().nextInt(9) + 1;
         inputNumber[i] = 0;
         status[i] = i > 40 ? 2 : 0;
-        panelList[i] = PanelWidget(
-          inputNumber: inputNumber[i],
-          correctNumber: correctNumber[i],
-          status: status[i],
-        );
       }
     });
   }
 
   void checkAnswer() {
+    List<int> row;
+    List<int> col;
+    List<int> square;
+    List<int> numbers = List.generate(9, (i) => i + 1);
     setState(() {
-      bool correctAnswer = false;
+      bool correctAnswer = true;
       if (inputNumber.contains(0)) {
         correctAnswer = false;
       } else {
         for (var i = 0; i < 9; i += 1) {
-          correctAnswer = correctAnswer;
+          // 列、行、マスに数字を入れる
+          row = [for (var j = i * 9; j < (i + 1) * 9; j += 1) inputNumber[j]];
+          col = [for (var j = i; j < 81; j += 9) inputNumber[j]];
+          square = inputNumber.sublist(i, i + 3) +
+              inputNumber.sublist(i + 9, i + 12) +
+              inputNumber.sublist(i + 18, i + 21);
+          // 1..9までの数字をすべて含むならばtrue
+          correctAnswer = correctAnswer &
+              row
+                  .map((x) => numbers.contains(x))
+                  .toList()
+                  .reduce((a, b) => a & b);
+          correctAnswer = correctAnswer &
+              col
+                  .map((x) => numbers.contains(x))
+                  .toList()
+                  .reduce((a, b) => a & b);
+          correctAnswer = correctAnswer &
+              square
+                  .map((x) => numbers.contains(x))
+                  .toList()
+                  .reduce((a, b) => a & b);
+          if (!correctAnswer) {
+            break;
+          }
         }
       }
       if (correctAnswer) {
+        // showDialog(
+        //   context: context,
+        //   builder: (context) {
+        //     return SimpleDialog(
+        //       title: Text("ゲームクリア！"),
+        //       children: <Widget>[
+        //         SimpleDialogOption(
+        //           onPressed: () => ({}),
+        //           child: Text("OK"),
+        //         ),
+        //       ],
+        //     );
+        //   },
+        // );
         resetGame();
       }
     });
