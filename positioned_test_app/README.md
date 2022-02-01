@@ -2,23 +2,43 @@
 
 Positioned Test
 
-## Getting Started
+数独アプリのプロトタイプ。
 
-This project is a starting point for a Flutter application.
+ゲーム起動時に数字が入力できなくなる不具合発見。
+その後再現できなくなったので放置。なんだろ
 
-A few resources to get you started if this is your first Flutter project:
+### class
+- GameAreaWidget
+  - ゲーム領域全体を制御するエリア
+- FrameWidget
+  - 数字、ボタンを設置するエリア。ここだけStatefulWidget
+- PanelWidget
+  - 数字、ボタンの中身を設定するパネル
+- リセット、ヒント等の他のボタンも必要
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+### variable
+- [x] List<int> inputNumber
+  - 入力されている数字。ゲーム中にボタンを押すことで変わる
+- [x] List<int> correctNumber
+  - 正解の数字。ゲーム開始時resetGameによって変わる
+- [x] List<int> status
+  - 0 : 入力可能、未選択／1 : 入力可能、選択中／2,3 : 入力不可／その他 : Button
+- [x] List<PanelWidget> panelList
+  - 9x9のマスに入るPanel。PanelWidgetのList
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-
-こんな感じで実装。
-selectPanel, setNumberは済。
-次はcheckAnswer, initStateに手を付ける。
+### setState
+- [x] setNumber
+  - 選択中のパネルに数字を入れる
+- [x] selectPanel
+  - パネルを選択する
+- [ ] resetGame
+  - ゲームを初期化する
+- [ ] checkAnswer
+  - 入力された数字の正解をチェックする
+- [x] @override initState
+  - resetGameを実行する
+- [x] @override build
+  - inputPanelの値をpanelListに入力してサイズを決定する
 
 ``` lib/panel.dart
 class GameAreaWidget extends StatelessWidget
@@ -42,6 +62,7 @@ class PanelWidget extends StatelessWidget
  │─ final int inputNumber;
  │─ final int correctNumber;
  └─ final int status;
-
 ```
+
+![sudoku_mockup](https://github.com/botamotch/Flutter/tree/master/positioned_test_app/doc/sudoku_mockup.png "数独アプリモックアップ")
 

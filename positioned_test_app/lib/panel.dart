@@ -43,7 +43,7 @@ class _FrameWidgetState extends State<FrameWidget> {
   }
 
   void selectPanel(var j) {
-    // 選択中のパネルを設定する
+    // パネルを選択する
     // i == j : 選択中。 X | 1 で bit1 をHiにする
     // i != j : 未選択。 X & 2 で bit1 をLoにする
     setState(() {
@@ -232,7 +232,6 @@ class PanelWidget extends StatelessWidget {
       color = Colors.black12;
       number = (inputNumber != 0) ? '$inputNumber' : 'CLEAR';
       style = TextStyle(fontWeight: FontWeight.bold);
-      // print('> $inputNumber , $status');
     }
     return Container(
       alignment: Alignment(0.0, 0.0),

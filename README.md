@@ -2,6 +2,8 @@
 ### Project
 - App1
   - [アサルトリリィ非公式データベース](https://github.com/fvh-P/assaultlily-rdf)からデータを引っ張ってくるやつ
+- `positioned_test`
+  - 数独アプリのプロトタイプ。そのうち独立させる
 
 ### Command
 
